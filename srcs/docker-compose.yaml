@@ -13,7 +13,7 @@ services:
       - wordpress
     networks:
       - my-network
-    restart: always
+    restart: unless-stopped
   
   wordpress:
     build: requirements/wordpress
@@ -24,11 +24,12 @@ services:
     env_file: .env
     depends_on:
       - mariadb
+      - redis
     networks:
       - my-network
     secrets:
       - db_password
-    restart: always
+    restart: unless-stopped
 
   mariadb:
     build: requirements/mariadb
@@ -42,8 +43,39 @@ services:
     secrets:
       - db_password
       - db_root_password
-    restart: always
+    restart: unless-stopped
 
+  redis:
+    build: ./requirements/bonus/redis
+    image: redis
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - my-network
+    
+  adminer:
+    build: ./requirements/bonus/adminer
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    networks:
+      - my-network
+    depends_on:
+      - mariadb
+    ports:
+      - "8080:8080"
+  
+  static_site:
+    build: ./requirements/bonus/static_site
+    image: static_site
+    container_name: static_site
+    restart: unless-stopped
+    networks:
+      - my-network
+    depends_on:
+      - mariadb
+    ports:
+    - "3000:3000"
 volumes:
   wordpress: # This is the named volume
     driver: local

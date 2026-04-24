@@ -1,0 +1,14 @@
+body {
+    margin: 0;
+    background: #0f0f0f;
+    color: #ffffff;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+}
