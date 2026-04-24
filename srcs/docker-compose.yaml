@@ -1,0 +1,68 @@
+name: 'inception'
+
+services:
+  nginx:
+    build: requirements/nginx
+    image: nginx
+    container_name: nginx
+    volumes:
+     - wordpress:/var/www/html  # Use the named volume
+    ports:
+      - "443:443"
+    depends_on:
+      - wordpress
+    networks:
+      - my-network
+    restart: always
+  
+  wordpress:
+    build: requirements/wordpress
+    image: wordpress
+    container_name: wordpress
+    volumes:
+     - wordpress:/var/www/html  # Use the named volume
+    env_file: .env
+    depends_on:
+      - mariadb
+    networks:
+      - my-network
+    secrets:
+      - db_password
+    restart: always
+
+  mariadb:
+    build: requirements/mariadb
+    image: mariadb
+    container_name: mariadb
+    volumes:
+     - mariadb:/var/lib/mysql
+    env_file: .env
+    networks:
+      - my-network
+    secrets:
+      - db_password
+      - db_root_password
+    restart: always
+
+volumes:
+  wordpress: # This is the named volume
+    driver: local
+    driver_opts:   # Here are the custom options for the driver
+      type: 'none'
+      o: 'bind'
+      device: '/home/ychedmi/data/wordpress'
+  mariadb: # This is the named volume
+    driver: local
+    driver_opts:   # Here are the custom options for the driver
+      type: 'none'
+      o: 'bind'
+      device: '/home/ychedmi/data/mariadb'
+
+networks:
+  my-network:
+    driver: bridge
+secrets:
+    db_password:
+      file: ../secrets/db_password.txt
+    db_root_password:
+      file: ../secrets/db_root_password.txt
