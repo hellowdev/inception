@@ -5,4 +5,4 @@ RUN apt-get update && apt-get install -y php php-mysqli wget \
 
 RUN wget -O /adminer.php https://www.adminer.org/latest.php
 
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "/"]
+CMD ["php", "-S", "0.0.0.0:8080", "/adminer.php"]

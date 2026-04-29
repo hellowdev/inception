@@ -10,10 +10,8 @@ RUN openssl req -x509 -nodes \
 -out /etc/nginx/ssl/nginx.crt \
 -subj "/C=MA/ST=Casablanca/L=Casablanca/O=42/CN=$DOMAIN_NAME"
 
-# RUN chmod 755 /var/www/html && chown -R www-data:www-data /var/www/html
 
-COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/nginx.conf /etc/nginx/conf.d/nginx.conf
 
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
-# sudo aa-teardown

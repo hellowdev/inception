@@ -3,11 +3,8 @@ FROM debian:bookworm
 RUN apt-get update && apt-get install -y nginx && \
     rm -rf /var/lib/apt/lists/*
 
-# 1. Copy your Nginx configuration
-COPY conf/default.conf /etc/nginx/sites-available/default
-
-# 2. Enable the config by creating a symlink
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+# # 1. Copy your Nginx configuration
+COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
 # 3. Copy all your website files
 COPY site/ /var/www/html/

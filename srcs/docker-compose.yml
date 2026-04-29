@@ -3,24 +3,24 @@ name: 'inception'
 services:
   nginx:
     build: requirements/nginx
-    image: nginx
+    image: nginx:inception
     container_name: nginx
     volumes:
-     - wordpress:/var/www/html  # Use the named volume
+     - wordpress_vol:/var/www/html  # Use the named volume
     ports:
       - "443:443"
     depends_on:
       - wordpress
     networks:
       - my-network
-    restart: unless-stopped
+    restart: always
   
   wordpress:
     build: requirements/wordpress
-    image: wordpress
+    image: wordpress:inception
     container_name: wordpress
     volumes:
-     - wordpress:/var/www/html  # Use the named volume
+     - wordpress_vol:/var/www/html  # Use the named volume
     env_file: .env
     depends_on:
       - mariadb
@@ -29,61 +29,93 @@ services:
       - my-network
     secrets:
       - db_password
-    restart: unless-stopped
+      - wp_admin_pw
+      - wp_user_pw
+    restart: always
 
   mariadb:
     build: requirements/mariadb
-    image: mariadb
+    image: mariadb:inception
     container_name: mariadb
     volumes:
-     - mariadb:/var/lib/mysql
+     - mariadb_vol:/var/lib/mysql
     env_file: .env
     networks:
       - my-network
     secrets:
       - db_password
       - db_root_password
-    restart: unless-stopped
+    restart: always
 
   redis:
     build: ./requirements/bonus/redis
-    image: redis
+    image: redis:inception
     container_name: redis
-    restart: unless-stopped
+    restart: always
     networks:
       - my-network
-    
+
   adminer:
     build: ./requirements/bonus/adminer
-    image: adminer
+    image: adminer:inception
     container_name: adminer
-    restart: unless-stopped
+    restart: always
     networks:
       - my-network
     depends_on:
       - mariadb
     ports:
       - "8080:8080"
-  
+
   static_site:
     build: ./requirements/bonus/static_site
-    image: static_site
+    image: static_site:inception
     container_name: static_site
-    restart: unless-stopped
+    restart: always
+    networks:
+      - my-network
+    ports:
+    - "3000:3000"
+    
+  ftp:
+    build: ./requirements/bonus/ftp
+    image: ftp:inception
+    container_name: ftp
+    restart: always
     networks:
       - my-network
     depends_on:
-      - mariadb
+      - wordpress
+    env_file: .env
     ports:
-    - "3000:3000"
+      - "21:21"
+      - "21000-21010:21000-21010"
+    volumes:
+     - wordpress_vol:/var/www/html
+
+  cadvisor:
+    build: ./requirements/bonus/cadvisor
+    image: cadvisor:inception
+    container_name: cadvisor
+    restart: always
+    ports:
+      - "8090:8080"      # using 8090 because adminer already uses 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - my-network
+
 volumes:
-  wordpress: # This is the named volume
+  wordpress_vol: # This is the named volume
     driver: local
     driver_opts:   # Here are the custom options for the driver
       type: 'none'
       o: 'bind'
       device: '/home/ychedmi/data/wordpress'
-  mariadb: # This is the named volume
+  mariadb_vol: # This is the named volume
     driver: local
     driver_opts:   # Here are the custom options for the driver
       type: 'none'
@@ -98,3 +130,7 @@ secrets:
       file: ../secrets/db_password.txt
     db_root_password:
       file: ../secrets/db_root_password.txt
+    wp_admin_pw:
+      file: ../secrets/wp_admin_pw.txt
+    wp_user_pw:
+      file: ../secrets/wp_user_pw.txt
