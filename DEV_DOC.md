@@ -60,28 +60,28 @@ touch srcs/.env
 Fill it with the following variables:
 
 ```env
-#DOMAINE
-DOMAIN_NAME=your_login.42.fr
+SITE_TITLE=your_site_title
 
-WP_TITLE=MySite
-
-# MariaDB
-MARIADB_DATABASE=wordpress
-MARIADB_USER=wpuser
+#DB USER INFO
+MARIADB_DATABASE="wordpress"
+MARIADB_USER=user_db_name
 DB_HOST="mariadb"
 
-# WordPress User
-WP_USER=user_name
-WP_USER_EMAIL=user@example.com
-
-# WordPress Admin
-WP_ADMIN=admin_name
-WP_ADMIN_EMAIL=admin@example.com
+#DOMAINE NAME
+DOMAIN_NAME=your_domaine
 
 # WORDPRESS PATH
 WP_PATH=/var/www/html/
 
-# Redis
+#WORDPRESS ADMIN
+WP_ADMIN=wp_admin_username
+WP_ADMIN_EMAIL=admin@example.com
+
+#WORDPRESS USER
+WP_USER=wp_user
+WP_USER_EMAIL=user@example.com
+
+#REDIS
 REDIS_HOST=redis
 REDIS_PORT=6379
 ```
@@ -91,7 +91,7 @@ REDIS_PORT=6379
 ### 3. Add domain to `/etc/hosts`
 
 ```bash
-echo "127.0.0.1 your_login.42.fr" | sudo tee -a /etc/hosts
+echo "127.0.0.1 your_domaine" | sudo tee -a /etc/hosts
 ```
 
 ### 4. Create the data directories
@@ -101,16 +101,6 @@ The volumes store data on the host at `/home/login/data/`. Create these director
 ```bash
 mkdir -p /home/$USER/data/wordpress
 mkdir -p /home/$USER/data/mariadb
-```
-
-### 5. Generate the SSL certificate for Nginx
-
-```bash
-mkdir -p srcs/requirements/nginx/conf/ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout srcs/requirements/nginx/conf/ssl/nginx.key \
-  -out srcs/requirements/nginx/conf/ssl/nginx.crt \
-  -subj "/CN=your_login.42.fr"
 ```
 
 ---

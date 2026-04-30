@@ -23,8 +23,10 @@ services:
      - wordpress_vol:/var/www/html  # Use the named volume
     env_file: .env
     depends_on:
-      - mariadb
-      - redis
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - my-network
     secrets:
@@ -39,6 +41,12 @@ services:
     container_name: mariadb
     volumes:
      - mariadb_vol:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     env_file: .env
     networks:
       - my-network

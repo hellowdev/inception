@@ -30,7 +30,7 @@ The project's primary goal is to teach system administration and DevOps by requi
 
 ### Design choices
 
-Every container is built from Debian Bookworm. Services communicate over a private Docker network called `inception_my-network`. Persistent data (WordPress files and MariaDB database) is stored in named Docker volumes mapped to `/home/ychedmi/data/` on the host machine. All containers restart automatically unless explicitly stopped.
+Every container is built from Debian Bookworm. Services communicate over a private Docker network called `inception_my-network`. Persistent data (WordPress files and MariaDB database) is stored in named Docker volumes mapped to `/home/user/data/` on the host machine. All containers restart automatically unless explicitly stopped.
 
 ---
 
@@ -88,7 +88,7 @@ Host networking is not used because it would break isolation and expose all serv
 | Performance | Optimized by Docker | Same as host filesystem |
 | Use case | Persistent application data | Development, sharing specific host files |
 
-This project uses named volumes (`inception_wordpress_vol`, `inception_mariadb_vol`) that are mapped to explicit host paths inside the VM (`/home/ychedmi/data/wordpress` and `/home/ychedmi/data/mariadb`). This satisfies both the portability of named volumes and the subject's requirement to store data in a specific location on the host.
+This project uses named volumes (`inception_wordpress_vol`, `inception_mariadb_vol`) that are mapped to explicit host paths inside the VM (`/home/user/data/wordpress` and `/home/user/data/mariadb`). This satisfies both the portability of named volumes and the subject's requirement to store data in a specific location on the host.
 
 ---
 
@@ -96,16 +96,14 @@ This project uses named volumes (`inception_wordpress_vol`, `inception_mariadb_v
 
 ### Requirements
 
-- A Linux virtual machine (the project must run inside a VM)
-- Docker and Docker Compose installed on the VM
+- Docker and Docker Compose installed
 - `make` installed
 
 ### Setup
 
-1. Clone the repository inside your VM:
+1. Clone the repository:
 
 ```bash
-git clone https://github.com/hellowdev/inception
 cd inception
 ```
 
@@ -129,24 +127,25 @@ touch srcs/.env
 Then edit `srcs/.env` and fill in your credentials:
 
 ```env
-SITE_TITLE=mysite
+SITE_TITLE=your_site_title
+
 #DB USER INFO
 MARIADB_DATABASE="wordpress"
-MARIADB_USER="jhon"
+MARIADB_USER=user_db_name
 DB_HOST="mariadb"
 
 #DOMAINE NAME
-DOMAIN_NAME=ychedmi.42.fr
+DOMAIN_NAME=your_domaine
 
 # WORDPRESS PATH
 WP_PATH=/var/www/html/
 
 #WORDPRESS ADMIN
-WP_ADMIN=supervisor
+WP_ADMIN=wp_admin_username
 WP_ADMIN_EMAIL=admin@example.com
 
 #WORDPRESS USER
-WP_USER=lity
+WP_USER=wp_user
 WP_USER_EMAIL=user@example.com
 
 #REDIS
@@ -157,7 +156,7 @@ REDIS_PORT=6379
 3. Add your domain to `/etc/hosts` on the VM:
 
 ```bash
-echo "127.0.0.1 ychedmi.42.fr" | sudo tee -a /etc/hosts
+echo "127.0.0.1 your_domaine" | sudo tee -a /etc/hosts
 ```
 
 4. Build and start all containers:
@@ -180,11 +179,11 @@ make re       # full rebuild from scratch
 
 | Service | URL |
 |---|---|
-| WordPress | https://your_ychedmi.42.fr |
-| Adminer | http://your_ychedmi.42.fr:8080 |
-| Static website | http://your_ychedmi.42.fr:3000 |
-| cAdvisor | http://your_ychedmi.42.fr:8090 |
-| FTP | ftp://ychedmi.42.fr:21 |
+| WordPress | https://your_domaine |
+| Adminer | http://your_domaine:8080 |
+| Static website | http://your_domaine:3000 |
+| cAdvisor | http://your_domaine:8090 |
+| FTP | ftp://your_domaine:21 |
 
 ---
 
